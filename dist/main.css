@@ -4,9 +4,10 @@
 
 #main > * {
 	flex-basis: 50%;
+	flex-shrink: 1;
 }
 
-#nodes div {
+#nodes div:not(#node-0) {
 	border-left: 1px solid gray;
 	margin-left: 0.5em;
 	padding-left: 0.5em;
@@ -20,6 +21,21 @@
 	font-weight: bolder;
 }
 
+#binary {
+	word-break: break-all;
+}
+
 .node {
 	padding: 0.25em;
+}
+
+#binary {
+	font-family: monospace;
+	font-size: 1.25rem;
+}
+
+.byte {
+	padding-left: 0.15em;
+	padding-right: 0.15em;
+	white-space: nowrap;
 }

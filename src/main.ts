@@ -442,7 +442,7 @@ function renderBinaryViewer(buf: Uint8Array, offset: number, node: Node, id: str
   span.id = id;
 
   if (node.InsideNodes === undefined || node.InsideNodes.length == 0) {
-    span.innerText = buf.slice(offset, offset + node.Length).reduce((str, num) => str += " " + uint8ToHex(num), "");
+    span.innerHTML = buf.slice(offset, offset + node.Length).reduce((str, num) => str += "<span class='byte'>" + uint8ToHex(num) + "</span>", "");
     return span;
   }
 
