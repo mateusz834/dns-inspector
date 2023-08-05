@@ -21,6 +21,10 @@
 	font-weight: bolder;
 }
 
+#nodes .highlight-end {
+	text-decoration: underline;
+}
+
 #binary {
 	word-break: break-all;
 }

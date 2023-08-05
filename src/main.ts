@@ -387,6 +387,7 @@ function render() {
       if (prevID !== id) {
         if (prevID) {
           document.getElementById(nodeIDPrefix + prevID)?.querySelector(".details")?.classList.remove("highlight");
+          document.getElementById(nodeIDPrefix + prevID)?.querySelector(".details")?.classList.remove("highlight-end");
           for (let i = id.indexOf("."); i != -1; i = prevID.indexOf(".", i + 1)) {
             const pid = prevID.slice(0, i);
             document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.remove("highlight");
@@ -396,6 +397,7 @@ function render() {
         prevID = id;
 
         document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight");
+        document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight-end");
         for (let i = id.indexOf("."); i != -1; i = id.indexOf(".", i + 1)) {
           const pid = id.slice(0, i);
           document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.add("highlight");
