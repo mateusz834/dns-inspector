@@ -1,0 +1,25 @@
+#main {
+	display: flex;
+}
+
+#main > * {
+	flex-basis: 50%;
+}
+
+#nodes div {
+	border-left: 1px solid gray;
+	margin-left: 0.5em;
+	padding-left: 0.5em;
+}
+
+#binary .highlight {
+	background-color: red;
+}
+
+#nodes .highlight.details {
+	font-weight: bolder;
+}
+
+.node {
+	padding: 0.25em;
+}
