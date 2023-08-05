@@ -384,23 +384,24 @@ function render() {
         return;
       }
 
-      document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight");
-      for (let i = id.indexOf("."); i != -1; i = id.indexOf(".", i + 1)) {
-        const pid = id.slice(0, i);
-        document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.add("highlight");
-      }
-      document.getElementById(binaryViewerIDPrefix + id)?.classList.add("highlight");
-
-      if (prevID && prevID !== id) {
-        document.getElementById(nodeIDPrefix + prevID)?.querySelector(".details")?.classList.remove("highlight");
-        for (let i = id.indexOf("."); i != -1; i = prevID.indexOf(".", i + 1)) {
-          const pid = prevID.slice(0, i);
-          document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.remove("highlight");
+      if (prevID !== id) {
+        if (prevID) {
+          document.getElementById(nodeIDPrefix + prevID)?.querySelector(".details")?.classList.remove("highlight");
+          for (let i = id.indexOf("."); i != -1; i = prevID.indexOf(".", i + 1)) {
+            const pid = prevID.slice(0, i);
+            document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.remove("highlight");
+          }
+          document.getElementById(binaryViewerIDPrefix + prevID)?.classList.remove("highlight");
         }
-        document.getElementById(binaryViewerIDPrefix + prevID)?.classList.remove("highlight");
-      }
+        prevID = id;
 
-      prevID = id;
+        document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight");
+        for (let i = id.indexOf("."); i != -1; i = id.indexOf(".", i + 1)) {
+          const pid = id.slice(0, i);
+          document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.add("highlight");
+        }
+        document.getElementById(binaryViewerIDPrefix + id)?.classList.add("highlight");
+      }
     }
   });
 
