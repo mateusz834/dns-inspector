@@ -31,7 +31,11 @@
 
 #binary {
 	font-family: monospace;
-	font-size: 1.25rem;
+	font-size: 1rem;
+}
+
+.bits {
+	white-space: nowrap;
 }
 
 .byte {

@@ -4,9 +4,9 @@ type Node = {
   Name: string;
   Value?: string,
 
-  bitLength?: boolean,
   Length: number,
 
+  bitField?: boolean,
   InsideNodes?: Node[],
 };
 
@@ -34,7 +34,7 @@ class Header {
     this.ID = m.getUint16(0);
     const flags = m.getUint16(2);
     this.Flags = {
-      Query: (flags & 1 << 15) !== 0,
+      Query: (flags & 1 << 15) === 0,
       OpCode: (flags >> 11) & 0b1111,
       BitAA: (flags & 1 << 10) !== 0,
       BitTC: (flags & 1 << 9) !== 0,
@@ -59,19 +59,21 @@ class Header {
       InsideNodes: [
         { Name: "ID", Value: this.ID.toString(), Length: 2, },
         {
-          Name: "Flags", Length: 2,
-          //InsideNodes: [
-          //	{ Name: "QR", Value: this.Flags.Query ? "query" : "response", Length: 1, bitLength: true, },
-          //	{ Name: "OpCode", Value: this.Flags.OpCode.toString(), Length: 4, bitLength: true, },
-          //	{ Name: "Bit AA", Value: this.Flags.BitAA.toString(), Length: 1, bitLength: true, },
-          //	{ Name: "Bit TC", Value: this.Flags.BitTC.toString(), Length: 1, bitLength: true, },
-          //	{ Name: "Bit RD", Value: this.Flags.BitRD.toString(), Length: 1, bitLength: true, },
-          //	{ Name: "Bit RA", Value: this.Flags.BitRA.toString(), Length: 1, bitLength: true, },
-          //	{ Name: "Reserved Bit", Value: this.Flags.BitReserved.toString(), Length: 1, bitLength: true, },
-          //	{ Name: "Bit AD", Value: this.Flags.BitAD.toString(), Length: 1, bitLength: true, },
-          //	{ Name: "Bit CD", Value: this.Flags.BitCD.toString(), Length: 1, bitLength: true, },
-          //	{ Name: "RCode", Value: this.Flags.RCode.toString(), Length: 4, bitLength: true, },
-          //]
+          Name: "Flags",
+          Length: 2,
+          bitField: true,
+          InsideNodes: [
+            { Name: "QR", Value: this.Flags.Query ? "query" : "response", Length: 1 },
+            { Name: "OpCode", Value: this.Flags.OpCode.toString(), Length: 4 },
+            { Name: "Bit AA", Value: this.Flags.BitAA.toString(), Length: 1 },
+            { Name: "Bit TC", Value: this.Flags.BitTC.toString(), Length: 1 },
+            { Name: "Bit RD", Value: this.Flags.BitRD.toString(), Length: 1 },
+            { Name: "Bit RA", Value: this.Flags.BitRA.toString(), Length: 1 },
+            { Name: "Reserved Bit", Value: this.Flags.BitReserved.toString(), Length: 1 },
+            { Name: "Bit AD", Value: this.Flags.BitAD.toString(), Length: 1 },
+            { Name: "Bit CD", Value: this.Flags.BitCD.toString(), Length: 1 },
+            { Name: "RCode", Value: this.Flags.RCode.toString(), Length: 4 },
+          ]
         },
         { Name: "Questions Count", Value: this.QDCount.toString(), Length: 2, },
         { Name: "Answers Count", Value: this.ANCount.toString(), Length: 2, },
@@ -349,7 +351,7 @@ class Message {
 function render() {
   const msg = new Message(new Uint8Array(
     [
-      1, 128, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0,
+      1, 128, 8, 131, 0, 1, 0, 1, 0, 0, 0, 0,
       3, 67, 67, 67, 0, 1, 0, 2, 3,
       0xC0, 12, 1, 0, 2, 3, 0, 0, 0, 0, 0, 3,
       1, 2, 3,
@@ -437,19 +439,43 @@ function uint8ToHex(num: number): string {
   return ("00" + num.toString(16)).slice(-2).toUpperCase();
 }
 
+function uint8ToBin(num: number): string {
+  return ("000000000" + num.toString(2)).slice(-8);
+}
+
+function renderBinaryViewerBin(node: Node, bits: string, offset: number, id: string): HTMLElement {
+  const span = document.createElement("span");
+  span.id = id;
+  span.innerText = bits.slice(offset, offset + node.Length);
+  return span;
+}
+
 function renderBinaryViewer(buf: Uint8Array, offset: number, node: Node, id: string): HTMLElement {
   const span = document.createElement("span");
   span.id = id;
 
   if (node.InsideNodes === undefined || node.InsideNodes.length == 0) {
-    span.innerHTML = buf.slice(offset, offset + node.Length).reduce((str, num) => str += "<span class='byte'>" + uint8ToHex(num) + "</span>", "");
+    span.innerHTML = buf.slice(offset, offset + node.Length).reduce((str, num) => str + "<span class='byte'>" + uint8ToHex(num) + "</span>", "");
     return span;
   }
 
-  for (const [i, n] of node.InsideNodes.entries()) {
-    span.appendChild(renderBinaryViewer(buf, offset, n, `${id}.${i}`));
-    offset += n.Length;
+  const asStr = buf.slice(offset, offset + node.Length).reduce((prev, cur) => prev + uint8ToBin(cur), "");
+  if (node.bitField) {
+    span.innerHTML = "[[";
+    span.classList.add("bits");
+    let offset = 0;
+    for (const [i, n] of node.InsideNodes.entries()) {
+      span.appendChild(renderBinaryViewerBin(n, asStr, offset, `${id}.${i}`));
+      offset += n.Length;
+    }
+    span.append("]]");
+  } else {
+    for (const [i, n] of node.InsideNodes.entries()) {
+      span.appendChild(renderBinaryViewer(buf, offset, n, `${id}.${i}`));
+      offset += n.Length;
+    }
   }
+
 
   return span;
 }
