@@ -409,7 +409,7 @@ function render() {
 
   const nodes = document.createElement("div");
   nodes.id = "nodes";
-  nodes.appendChild(renderNode(msg.Node, nodeIDPrefix + "0"));
+  nodes.appendChild(renderNode(msg.Node, nodeIDPrefix + "0", 0));
 
   const binary = document.createElement("div");
   binary.id = "binary";
@@ -420,7 +420,7 @@ function render() {
   document.body.appendChild(main);
 }
 
-function renderNode(node: Node, id: string, bitField?: boolean): HTMLElement {
+function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolean): HTMLElement {
   const nodeDiv = document.createElement("div");
   nodeDiv.id = id;
   nodeDiv.classList.add("node");
@@ -428,14 +428,21 @@ function renderNode(node: Node, id: string, bitField?: boolean): HTMLElement {
   const details = document.createElement("div");
   const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Bytes" : "Byte"}`;
   details.innerHTML = `${node.Name} ${node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
+  details.innerHTML += `<span class="node-offset" > (offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})</span>`;
   details.classList.add("details");
   nodeDiv.appendChild(details);
 
   if (node.InsideNodes) {
     for (const [i, n] of node.InsideNodes.entries()) {
-      nodeDiv.appendChild(renderNode(n, `${id}.${i}`, node.bitField));
+      nodeDiv.appendChild(renderNode(n, `${id}.${i}`, bitOffset, node.bitField));
+      if (node.bitField) {
+        bitOffset += n.Length;
+      } else {
+        bitOffset += n.Length * 8;
+      }
     }
   }
+
   return nodeDiv;
 }
 
