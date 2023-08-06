@@ -462,23 +462,54 @@ function renderBinaryViewer(buf: Uint8Array, offset: number, node: Node, id: str
     return span;
   }
 
-  const asStr = buf.slice(offset, offset + node.Length).reduce((prev, cur) => prev + uint8ToBin(cur), "");
   if (node.bitField) {
-    span.innerHTML = "[[";
-    span.classList.add("bits");
-    let offset = 0;
-    for (const [i, n] of node.InsideNodes.entries()) {
-      span.appendChild(renderBinaryViewerBin(n, asStr, offset, `${id}.${i}`));
-      offset += n.Length;
+    span.classList.add("wrapper");
+
+    const bits = buf.slice(offset, offset + node.Length).reduce((prev, cur) => prev + uint8ToBin(cur), "");
+
+    const bytes: HTMLSpanElement[] = [];
+    for (let i = 0; i < node.Length; i++) {
+      const s = document.createElement("span");
+      s.classList.add("binary-byte");
+      s.append("[[");
+      bytes.push(s);
     }
-    span.append("]]");
+
+    let bitsOffset = 0;
+    let bytesIndex = 0;
+    for (const [i, n] of node.InsideNodes.entries()) {
+      let bitsLeft = n.Length;
+      while (bitsLeft != 0) {
+        let nodeLeftBits = (bytesIndex + 1) * 8 - bitsOffset;
+        if (nodeLeftBits == 0) {
+          bytes[bytesIndex].append("]]");
+          bytesIndex++;
+          nodeLeftBits = 8;
+        }
+
+        let count = bitsLeft;
+        if (count > nodeLeftBits) {
+          count = nodeLeftBits;
+        }
+
+        const s = document.createElement("span");
+        s.id = `${id}.${i}`;
+        s.innerText = bits.slice(bitsOffset, bitsOffset + count);
+        console.log(bytes, bytesIndex);
+        bytes[bytesIndex].appendChild(s);
+        bitsOffset += count;
+        bitsLeft -= count;
+      }
+    }
+
+    bytes[bytes.length - 1].append("]]");
+    span.append(...bytes);
   } else {
     for (const [i, n] of node.InsideNodes.entries()) {
       span.appendChild(renderBinaryViewer(buf, offset, n, `${id}.${i}`));
       offset += n.Length;
     }
   }
-
 
   return span;
 }
