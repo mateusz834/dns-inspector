@@ -426,7 +426,7 @@ function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolea
   nodeDiv.classList.add("node");
 
   const details = document.createElement("div");
-  const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Bytes" : "Byte"}`;
+  const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Byte" : "Bytes"}`;
   details.innerHTML = `${node.Name} ${node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
   details.innerHTML += `<span class="node-offset" > (offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})</span>`;
   details.classList.add("details");
