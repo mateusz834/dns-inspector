@@ -1,5 +1,6 @@
 #main {
 	display: flex;
+	font-family: monospace;
 }
 
 #main > * {
@@ -30,7 +31,23 @@
 }
 
 .node {
-	padding: 0.25em;
+	padding: 0.15em;
+}
+
+.node-hide {
+	background: unset;
+	border: none;
+	transform: rotate(-180deg);
+}
+
+.node-hidden > .node {
+	display: none;
+}
+
+#nodes .node-hidden > .details::after {
+	content: "(...)";
+	display: block;
+	padding-left: 1em;
 }
 
 .node-size, .node-offset {
@@ -39,7 +56,6 @@
 }
 
 #binary {
-	font-family: monospace;
 	font-size: 1rem;
 }
 

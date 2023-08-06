@@ -365,6 +365,13 @@ function render() {
 
   const main = document.createElement("div");
   main.id = "main";
+  main.addEventListener("click", (e) => {
+    if (e.target instanceof HTMLElement) {
+      if (e.target.classList.contains("node-hide")) {
+        e.target.parentElement?.parentElement?.classList.toggle("node-hidden");
+      }
+    }
+  });
   main.addEventListener("mousemove", (e) => {
     let target = e.target;
     if (target instanceof HTMLElement) {
@@ -429,6 +436,9 @@ function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolea
   const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Byte" : "Bytes"}`;
   details.innerHTML = `${node.Name} ${node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
   details.innerHTML += `<span class="node-offset" > (offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})</span>`;
+  if (node.InsideNodes) {
+    details.innerHTML += `<button class="node-hide">^</button>`;
+  }
   details.classList.add("details");
   nodeDiv.appendChild(details);
 
