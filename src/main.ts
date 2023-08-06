@@ -1,5 +1,20 @@
 export { };
 
+const classToName: {
+  [k: number]: string | undefined,
+} = {
+  1: "IN",
+  3: "CH",
+  4: "HS",
+  254: "NONE",
+  255: "ANY",
+};
+
+function classAsStr(num: number): string {
+  const name = classToName[num];
+  return `${num} ${name ? `(${name})` : ""}`;
+}
+
 type Node = {
   Name: string;
   Value?: string,
@@ -212,7 +227,7 @@ class Queston {
       InsideNodes: [
         this.name.node,
         { Name: "Type", Value: this.type.toString(), Length: 2 },
-        { Name: "Class", Value: this.class.toString(), Length: 2 },
+        { Name: "Class", Value: classAsStr(this.class), Length: 2 },
       ]
     };
   }
@@ -262,7 +277,7 @@ class Resource {
       InsideNodes: [
         this.name.node,
         { Name: "Type", Value: this.type.toString(), Length: 2 },
-        { Name: "Class", Value: this.class.toString(), Length: 2 },
+        { Name: "Class", Value: classAsStr(this.class), Length: 2 },
         { Name: "TTL", Value: this.ttl.toString(), Length: 4 },
         { Name: "Length", Value: this.length.toString(), Length: 2 },
         { Name: "Resource Data", Length: this.length },
@@ -352,9 +367,9 @@ function render() {
   const msg = new Message(new Uint8Array(
     [
       1, 128, 8, 131, 0, 1, 0, 90, 0, 0, 0, 0,
-      3, 67, 67, 67, 0, 1, 0, 2, 3,
-      0xC0, 12, 1, 0, 2, 3, 0, 0, 0, 0, 0, 3, 1, 2, 3,
-      0xC0, 12, 1, 0, 2, 3, 0, 0, 0, 0, 0, 3, 1, 2, 3,
+      3, 67, 67, 67, 0, 1, 0, 0, 1,
+      0xC0, 12, 1, 0, 0, 1, 1, 0, 1, 0, 0, 3, 1, 2, 3,
+      0xC0, 12, 1, 0, 0, 0, 1, 0, 0, 0, 0, 3, 1, 2, 3,
       0xC0, 12, 1, 0, 2, 3, 0, 0, 0, 0, 0, 3, 1, 2, 3,
       0xC0, 12, 1, 0, 2, 3, 0, 0, 0, 0, 0, 3, 1, 2, 3,
       0xC0, 12, 1, 0, 2, 3, 0, 0, 0, 0, 0, 3, 1, 2, 3,
