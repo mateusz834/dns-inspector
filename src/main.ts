@@ -420,19 +420,20 @@ function render() {
   document.body.appendChild(main);
 }
 
-function renderNode(node: Node, id: string): HTMLElement {
+function renderNode(node: Node, id: string, bitField?: boolean): HTMLElement {
   const nodeDiv = document.createElement("div");
   nodeDiv.id = id;
   nodeDiv.classList.add("node");
 
   const details = document.createElement("div");
-  details.innerText = node.Name + (node.Value ? `: ${node.Value}` : "");
+  const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Bytes" : "Byte"}`;
+  details.innerHTML = `${node.Name} ${node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
   details.classList.add("details");
   nodeDiv.appendChild(details);
 
   if (node.InsideNodes) {
     for (const [i, n] of node.InsideNodes.entries()) {
-      nodeDiv.appendChild(renderNode(n, `${id}.${i}`));
+      nodeDiv.appendChild(renderNode(n, `${id}.${i}`, node.bitField));
     }
   }
   return nodeDiv;
