@@ -59,7 +59,7 @@ class Header {
       InsideNodes: [
         { Name: "ID", Value: this.ID.toString(), Length: 2, },
         {
-          Name: "Flags",
+          Name: "Bitfield",
           Length: 2,
           bitField: true,
           InsideNodes: [
@@ -446,13 +446,6 @@ function uint8ToBin(num: number): string {
   return ("000000000" + num.toString(2)).slice(-8);
 }
 
-function renderBinaryViewerBin(node: Node, bits: string, offset: number, id: string): HTMLElement {
-  const span = document.createElement("span");
-  span.id = id;
-  span.innerText = bits.slice(offset, offset + node.Length);
-  return span;
-}
-
 function renderBinaryViewer(buf: Uint8Array, offset: number, node: Node, id: string): HTMLElement {
   const span = document.createElement("span");
   span.id = id;
@@ -495,7 +488,6 @@ function renderBinaryViewer(buf: Uint8Array, offset: number, node: Node, id: str
         const s = document.createElement("span");
         s.id = `${id}.${i}`;
         s.innerText = bits.slice(bitsOffset, bitsOffset + count);
-        console.log(bytes, bytesIndex);
         bytes[bytesIndex].appendChild(s);
         bitsOffset += count;
         bitsLeft -= count;
