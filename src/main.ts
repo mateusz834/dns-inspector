@@ -436,7 +436,7 @@ function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolea
   const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Byte" : "Bytes"}`;
   details.innerHTML = `${node.Name} ${node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
   details.innerHTML += `<span class="node-offset" > (offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})</span>`;
-  if (node.InsideNodes) {
+  if (node.InsideNodes && node.InsideNodes.length != 0) {
     details.innerHTML += `<button class="node-hide">^</button>`;
   }
   details.classList.add("details");
