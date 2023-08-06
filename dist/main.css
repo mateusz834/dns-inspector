@@ -2,7 +2,12 @@
 	box-sizing: border-box;
 }
 
+html {
+	height: 100%;
+}
+
 body {
+	height: 100%;
 	margin: 0;
 	padding: 1em;
 	display: flex;
@@ -10,6 +15,7 @@ body {
 }
 
 #main {
+	height: 100%;
 	display: flex;
 	justify-content: space-between;
 	font-family: monospace;
@@ -19,16 +25,24 @@ body {
 }
 
 #nodes {
+	height: 100%;
 	flex-basis: 50%;
+	overflow-y: scroll;
+	direction: rtl; text-align: left;
+	padding-left: 0.5em;
 }
 
 #binary {
+	height: 100%;
 	flex-basis: 28rem;
 	flex-shrink: 1;
 	word-break: break-all;
 	border: 1px solid grey;
 	align-self: flex-start;
 	padding: 0.25em;
+	position: sticky;
+	top: 0.5em;
+	overflow-y: scroll;
 }
 
 #nodes div:not(#node-0) {
