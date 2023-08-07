@@ -510,9 +510,16 @@ function render() {
   main.addEventListener("mousemove", (e) => {
     let target = e.target;
     if (target instanceof HTMLElement) {
-      if (target.id == "") {
-        target = target.parentNode;
-        if (target === null || !(target instanceof HTMLElement)) {
+      while (target.id === "") {
+        target = target.parentElement;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+      }
+
+      const details = target.querySelector(".details");
+      if (details) {
+        if (!(details.contains(e.target as HTMLElement) || details.isSameNode(e.target as HTMLElement))) {
           return;
         }
       }

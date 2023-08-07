@@ -59,6 +59,11 @@ body {
 	font-weight: bolder;
 }
 
+.details {
+	width: max-content;
+	margin-right: auto;
+}
+
 #nodes .highlight-end {
 	text-decoration: underline;
 }
