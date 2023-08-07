@@ -610,16 +610,31 @@ function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolea
   nodeDiv.classList.add("node");
 
   const details = document.createElement("div");
-  const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Byte" : "Bytes"}`;
-  details.innerHTML = `${node.Name} ${!node.Invalid && node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
-  details.innerHTML += `<span class="node-offset" > (offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})</span>`;
+  details.append(`${node.Name}${!node.Invalid && node.Value ? `: ${node.Value}` : ""} `);
+
+  const size = document.createElement("span");
+  size.classList.add("node-size");
+  size.innerText = `(${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Byte" : "Bytes"})`;
+  details.append(size);
+
+  details.append(" ");
+
+  const offset = document.createElement("span");
+  offset.classList.add("node-offset");
+  offset.innerText = `(offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})`;
+  details.append(offset);
+
+
   if (node.InsideNodes && node.InsideNodes.length != 0) {
-    details.innerHTML += `<button class="node-hide">^</button>`;
+    const hide = document.createElement("button");
+    hide.classList.add("node-hide");
+    hide.innerText = "^";
+    details.append(hide);
   }
   if (node.Invalid) {
     nodeDiv.classList.add("node-invalid");
     if (node.Value) {
-      details.innerHTML += ` (${node.Value})`;
+      details.append(` (${node.Value})`);
     }
   }
   details.classList.add("details");
@@ -652,7 +667,12 @@ function renderBinaryViewer(buf: Uint8Array, offset: number, node: Node, id: str
   span.id = id;
 
   if (node.InsideNodes === undefined || node.InsideNodes.length == 0) {
-    span.innerHTML = buf.slice(offset, offset + node.Length).reduce((str, num) => str + "<span class='byte'>" + uint8ToHex(num) + "</span>", "");
+    buf.slice(offset, offset + node.Length).forEach((num) => {
+      const byte = document.createElement("span");
+      byte.classList.add("byte");
+      byte.innerText = uint8ToHex(num);
+      span.append(byte);
+    }, "");
     return span;
   }
 
