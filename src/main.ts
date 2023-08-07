@@ -251,7 +251,7 @@ class Resource {
       if (err instanceof Error) {
         throw new Error(`invalid resource header, ${err.message}`);
       }
-      throw new Error("internal resource header");
+      throw new Error("internal error");
     }
 
     this.resourceLength = this.name.nameLengthNoFollowPtr;
@@ -290,13 +290,8 @@ class Resource {
 class Message {
   Buf: Uint8Array;
   Node: Node;
-  Header: Header;
 
   constructor(msg: Uint8Array) {
-    if (msg.length < 12) {
-      throw new Error("dns message too short, it does not contain a header");
-    }
-    this.Header = new Header(msg.slice(0, 12));
     this.Buf = msg;
 
     const questionsNode: Node = {
@@ -320,46 +315,76 @@ class Message {
       InsideNodes: [],
     };
 
+    if (msg.length < 12) {
+      this.Node = {
+        Name: "Message",
+        Length: msg.length,
+        InsideNodes: [{
+          Name: "Invalid message",
+          Value: "dns message too short, header not found",
+          Length: msg.length,
+          Invalid: true,
+        }],
+      };
+      return;
+    }
+
+    const header = new Header(msg.slice(0, 12));
     this.Node = {
       Name: "Message",
       Length: msg.length,
       InsideNodes: [
-        this.Header.asNode(),
-        questionsNode,
-        answersNode,
-        authoritiesNode,
-        additionalsNode,
+        header.asNode(),
       ],
     };
 
 
     let offset = 12;
-    for (let i = 0; i < this.Header.QDCount; i++) {
-      const q = new Queston(msg, offset);
-      offset += q.questionLength;
-      questionsNode.Length += q.questionLength;
-      questionsNode.InsideNodes?.push(q.node);
-    }
+    try {
+      this.Node.InsideNodes?.push(questionsNode);
+      for (let i = 0; i < header.QDCount; i++) {
+        const q = new Queston(msg, offset);
+        offset += q.questionLength;
+        questionsNode.Length += q.questionLength;
+        questionsNode.InsideNodes?.push(q.node);
+      }
 
-    for (let i = 0; i < this.Header.ANCount; i++) {
-      const q = new Resource(msg, offset);
-      offset += q.resourceLength;
-      answersNode.Length += q.resourceLength;
-      answersNode.InsideNodes?.push(q.node);
-    }
+      this.Node.InsideNodes?.push(answersNode);
+      for (let i = 0; i < header.ANCount; i++) {
+        const q = new Resource(msg, offset);
+        offset += q.resourceLength;
+        answersNode.Length += q.resourceLength;
+        answersNode.InsideNodes?.push(q.node);
+      }
 
-    for (let i = 0; i < this.Header.NSCount; i++) {
-      const q = new Resource(msg, offset);
-      offset += q.resourceLength;
-      authoritiesNode.Length += q.resourceLength;
-      authoritiesNode.InsideNodes?.push(q.node);
-    }
+      this.Node.InsideNodes?.push(authoritiesNode);
+      for (let i = 0; i < header.NSCount; i++) {
+        const q = new Resource(msg, offset);
+        offset += q.resourceLength;
+        authoritiesNode.Length += q.resourceLength;
+        authoritiesNode.InsideNodes?.push(q.node);
+      }
 
-    for (let i = 0; i < this.Header.ARCount; i++) {
-      const q = new Resource(msg, offset);
-      offset += q.resourceLength;
-      additionalsNode.Length += q.resourceLength;
-      additionalsNode.InsideNodes?.push(q.node);
+      this.Node.InsideNodes?.push(additionalsNode);
+      for (let i = 0; i < header.ARCount; i++) {
+        const q = new Resource(msg, offset);
+        offset += q.resourceLength;
+        additionalsNode.Length += q.resourceLength;
+        additionalsNode.InsideNodes?.push(q.node);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        const trailing = msg.slice(offset);
+        this.Node.InsideNodes?.push({
+          Name: "Invalid message",
+          Value: err.message,
+          Length: trailing.length,
+          Invalid: true,
+        });
+        offset += trailing.length;
+      } else {
+        throw new Error("internal error");
+      }
     }
 
     const trailing = msg.slice(offset);
@@ -586,14 +611,16 @@ function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolea
 
   const details = document.createElement("div");
   const size = `${node.Length} ${bitField ? node.Length === 1 ? "Bit" : "Bits" : node.Length === 1 ? "Byte" : "Bytes"}`;
-  details.innerHTML = `${node.Name} ${node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
+  details.innerHTML = `${node.Name} ${!node.Invalid && node.Value ? `: ${node.Value}` : ""} <span class="node-size">(${size})</span>`;
   details.innerHTML += `<span class="node-offset" > (offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})</span>`;
   if (node.InsideNodes && node.InsideNodes.length != 0) {
     details.innerHTML += `<button class="node-hide">^</button>`;
   }
   if (node.Invalid) {
     nodeDiv.classList.add("node-invalid");
-    details.innerHTML += ` (invalid)`;
+    if (node.Value) {
+      details.innerHTML += ` (${node.Value})`;
+    }
   }
   details.classList.add("details");
   nodeDiv.appendChild(details);
