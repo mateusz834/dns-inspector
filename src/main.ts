@@ -18,6 +18,7 @@ function classAsStr(num: number): string {
 type Node = {
   Name: string;
   Value?: string,
+  Invalid?: boolean,
 
   Length: number,
 
@@ -360,6 +361,15 @@ class Message {
       additionalsNode.Length += q.resourceLength;
       additionalsNode.InsideNodes?.push(q.node);
     }
+
+    const trailing = msg.slice(offset);
+    if (trailing.length > 0) {
+      this.Node.InsideNodes?.push({
+        Name: "Trailing data",
+        Length: trailing.length,
+        Invalid: true,
+      });
+    }
   }
 }
 
@@ -580,6 +590,10 @@ function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolea
   details.innerHTML += `<span class="node-offset" > (offset: ${Math.floor(bitOffset / 8)}${bitOffset % 8 !== 0 ? `:${bitOffset % 8}` : ""})</span>`;
   if (node.InsideNodes && node.InsideNodes.length != 0) {
     details.innerHTML += `<button class="node-hide">^</button>`;
+  }
+  if (node.Invalid) {
+    nodeDiv.classList.add("node-invalid");
+    details.innerHTML += ` (invalid)`;
   }
   details.classList.add("details");
   nodeDiv.appendChild(details);

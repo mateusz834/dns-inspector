@@ -72,6 +72,10 @@ body {
 	padding: 0.15em;
 }
 
+.node-invalid {
+	background-color: #ffcccb;
+}
+
 .node-hide {
 	background: unset;
 	border: none;
