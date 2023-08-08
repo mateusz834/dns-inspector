@@ -631,21 +631,22 @@ function render() {
   const binaryViewerIDPrefix = "viewer-";
 
   let prevID: string | null = null;
+  let clickID: string | null = null;
 
   const main = document.createElement("div");
   main.id = "main";
   main.addEventListener("click", (e) => {
-    if (prevID) {
+    if (clickID) {
       if (e.target instanceof HTMLElement) {
         if (e.target.classList.contains("node-hide")) {
           e.target.parentElement?.parentElement?.classList.toggle("node-hidden");
         }
-        const nodeEl = document.getElementById(nodeIDPrefix + prevID)!;
+        const nodeEl = document.getElementById(nodeIDPrefix + clickID)!;
         if (nodeEl) {
           scrollIntoViewIfNeeded(nodeEl);
         }
 
-        const binaryEl = document.getElementById(binaryViewerIDPrefix + prevID)!;
+        const binaryEl = document.getElementById(binaryViewerIDPrefix + clickID)!;
         if (binaryEl) {
           scrollIntoViewIfNeeded(binaryEl);
         }
@@ -658,6 +659,7 @@ function render() {
       while (target.id === "") {
         target = target.parentElement;
         if (!(target instanceof HTMLElement)) {
+          clickID = null;
           return;
         }
       }
@@ -665,6 +667,7 @@ function render() {
       const details = target.querySelector(".details");
       if (details) {
         if (!(details.contains(e.target as HTMLElement) || details.isSameNode(e.target as HTMLElement))) {
+          clickID = null;
           return;
         }
       }
@@ -675,6 +678,7 @@ function render() {
       } else if (target.id.startsWith(binaryViewerIDPrefix)) {
         id = target.id.slice(binaryViewerIDPrefix.length);
       } else {
+        clickID = null;
         return;
       }
 
@@ -689,6 +693,7 @@ function render() {
           document.getElementById(binaryViewerIDPrefix + prevID)?.classList.remove("highlight");
         }
         prevID = id;
+        clickID = id;
 
         document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight");
         document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight-end");
