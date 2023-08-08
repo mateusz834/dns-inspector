@@ -574,59 +574,16 @@ class Message {
   }
 }
 
-function render() {
-  const msg = new Message(new Uint8Array(
-    [
-      1, 128, 8, 131, 0, 1, 0, 90, 0, 0, 0, 0,
-      3, 67, 67, 67, 0, 1, 0, 0, 1,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
-      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
-      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-    ]
-  ));
+function scrollIntoViewIfNeeded(target: HTMLElement) {
+  if (target.getBoundingClientRect().bottom > window.innerHeight) {
+    target.scrollIntoView(false);
+  }
+  if (target.getBoundingClientRect().top < 0) {
+    target.scrollIntoView();
+  }
+}
 
+function render() {
   const nodeIDPrefix = "node-";
   const binaryViewerIDPrefix = "viewer-";
 
@@ -645,7 +602,6 @@ function render() {
         if (nodeEl) {
           scrollIntoViewIfNeeded(nodeEl);
         }
-
         const binaryEl = document.getElementById(binaryViewerIDPrefix + clickID)!;
         if (binaryEl) {
           scrollIntoViewIfNeeded(binaryEl);
@@ -708,14 +664,12 @@ function render() {
 
   const nodes = document.createElement("div");
   nodes.id = "nodes";
-  nodes.appendChild(renderNode(msg.Node, nodeIDPrefix + "0", 0));
 
   const rhsWrapper = document.createElement("div");
   rhsWrapper.id = "rhs-wrapper";
 
   const binary = document.createElement("div");
   binary.id = "binary";
-  binary.appendChild(renderBinaryViewer(msg.Buf, 0, msg.Node, binaryViewerIDPrefix + "0"));
   rhsWrapper.appendChild(binary);
 
   const control = document.createElement("div");
@@ -892,13 +846,3 @@ function renderBinaryViewer(buf: Uint8Array, offset: number, node: Node, id: str
 }
 
 document.addEventListener("DOMContentLoaded", render);
-
-
-function scrollIntoViewIfNeeded(target: HTMLElement) {
-  if (target.getBoundingClientRect().bottom > window.innerHeight) {
-    target.scrollIntoView(false);
-  }
-  if (target.getBoundingClientRect().top < 0) {
-    target.scrollIntoView();
-  }
-}
