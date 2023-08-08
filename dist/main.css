@@ -22,6 +22,7 @@ body {
 	max-width: 64rem;
 	border: 1px solid grey;
 	padding: 1em;
+	gap: 0.2em;
 }
 
 #nodes {
@@ -32,17 +33,56 @@ body {
 	padding-left: 0.5em;
 }
 
-#binary {
-	height: 100%;
+#rhs-wrapper {
 	flex-basis: 28rem;
 	flex-shrink: 1;
+	height: 100%;
+
+	display: flex;
+	flex-direction: column;
+}
+
+#binary {
+	width: 100%;
+	flex-basis: 75%;
 	word-break: break-all;
+	flex-grow:1;
 	border: 1px solid grey;
 	align-self: flex-start;
 	padding: 0.25em;
 	position: sticky;
 	top: 0.5em;
 	overflow-y: scroll;
+}
+
+#control {
+	flex-basis: 25%;
+	border: 1px solid grey;
+	margin-top: 1em;
+	padding: 0.5em;
+
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+}
+
+#control > textarea {
+	flex-grow: 1;
+	flex-basis: 50;
+	resize: none;
+}
+
+#control > div {
+	flex-grow: 1;
+}
+
+#control button {
+	padding: 0.5em 1em;
+}
+
+#control .control-error {
+	color: red;
+	padding-bottom: 0.5em;
 }
 
 #nodes div:not(#node-0) {
@@ -95,10 +135,6 @@ body {
 .node-size, .node-offset {
 	font-size: 0.75rem;
 	color: gray;
-}
-
-#binary {
-	font-size: 1rem;
 }
 
 .bits {

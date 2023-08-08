@@ -584,6 +584,46 @@ function render() {
       0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
       0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
       0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      0xC0, 12, 0, 1, 0, 1, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
+      0xC0, 12, 0, 28, 0, 1, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
     ]
   ));
 
@@ -595,12 +635,21 @@ function render() {
   const main = document.createElement("div");
   main.id = "main";
   main.addEventListener("click", (e) => {
-    if (e.target instanceof HTMLElement) {
-      if (e.target.classList.contains("node-hide")) {
-        e.target.parentElement?.parentElement?.classList.toggle("node-hidden");
+    if (prevID) {
+      if (e.target instanceof HTMLElement) {
+        if (e.target.classList.contains("node-hide")) {
+          e.target.parentElement?.parentElement?.classList.toggle("node-hidden");
+        }
+        const nodeEl = document.getElementById(nodeIDPrefix + prevID)!;
+        if (nodeEl) {
+          scrollIntoViewIfNeeded(nodeEl);
+        }
+
+        const binaryEl = document.getElementById(binaryViewerIDPrefix + prevID)!;
+        if (binaryEl) {
+          scrollIntoViewIfNeeded(binaryEl);
+        }
       }
-      scrollIntoViewIfNeeded(document.getElementById(nodeIDPrefix + prevID)!);
-      scrollIntoViewIfNeeded(document.getElementById(binaryViewerIDPrefix + prevID)!);
     }
   });
   main.addEventListener("mousemove", (e) => {
@@ -656,12 +705,61 @@ function render() {
   nodes.id = "nodes";
   nodes.appendChild(renderNode(msg.Node, nodeIDPrefix + "0", 0));
 
+  const rhsWrapper = document.createElement("div");
+  rhsWrapper.id = "rhs-wrapper";
+
   const binary = document.createElement("div");
   binary.id = "binary";
   binary.appendChild(renderBinaryViewer(msg.Buf, 0, msg.Node, binaryViewerIDPrefix + "0"));
+  rhsWrapper.appendChild(binary);
+
+  const control = document.createElement("div");
+  control.id = "control";
+
+  const input = document.createElement("textarea");
+  input.placeholder = "hex-encoded DNS message";
+  control.appendChild(input);
+
+  const wrapper = document.createElement("div");
+  const buttonError = document.createElement("div");
+  buttonError.hidden = true;
+  buttonError.classList.add("control-error");
+
+  const inspectButton = document.createElement("button");
+  inspectButton.innerText = "inspect";
+  inspectButton.addEventListener("click", () => {
+    buttonError.hidden = true;
+    const hex = input.value;
+    if (hex.length % 2 != 0) {
+      buttonError.innerText = `the amount of characters in not even (${hex.length})`;
+      buttonError.hidden = false;
+      return;
+    }
+
+    if (!/^[0-9A-Fa-f]+$/.test(hex)) {
+      buttonError.innerText = 'not valid hex string';
+      buttonError.hidden = false;
+    }
+
+    const bytes = new Uint8Array(hex.length / 2);
+
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = parseInt(hex.substring(i * 2, (i * 2) + 2), 16);
+    }
+
+    const msg = new Message(bytes);
+    nodes.replaceChildren(renderNode(msg.Node, nodeIDPrefix + "0", 0));
+    binary.replaceChildren(renderBinaryViewer(msg.Buf, 0, msg.Node, binaryViewerIDPrefix + "0"));
+  });
+
+  wrapper.appendChild(buttonError);
+  wrapper.appendChild(inspectButton);
+  control.appendChild(wrapper);
+
+  rhsWrapper.appendChild(control);
 
   main.appendChild(nodes);
-  main.appendChild(binary);
+  main.appendChild(rhsWrapper);
   document.body.appendChild(main);
 }
 
