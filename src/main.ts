@@ -556,7 +556,7 @@ class Message {
       if (err instanceof Error) {
         const trailing = msg.slice(offset);
         this.Node.InsideNodes?.push({
-          Name: "Invalid header",
+          Name: trailing.length == 0 ? `invalid header` : `invalid message`,
           Value: trailing.length == 0 ? `missing ${type}, count in header is bigger than the actual count of ${type}s found the message` : err.message,
           Length: trailing.length,
           Invalid: true,
