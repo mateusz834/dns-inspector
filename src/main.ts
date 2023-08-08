@@ -103,7 +103,7 @@ class Header {
 
 class Name {
   nameLengthNoFollowPtr: number;
-  node: Node;
+  name: string,
 
   constructor(msg: Uint8Array, offset: number) {
     const startOffset = offset;
@@ -167,11 +167,7 @@ class Name {
           strName += ".";
         }
 
-        this.node = {
-          Name: "Name",
-          Value: strName,
-          Length: this.nameLengthNoFollowPtr
-        };
+        this.name = strName;
         return;
       }
 
@@ -226,7 +222,11 @@ class Queston {
       Name: "Question",
       Length: this.name.nameLengthNoFollowPtr + 4,
       InsideNodes: [
-        this.name.node,
+        {
+          Name: "Name",
+          Value: this.name.name,
+          Length: this.name.nameLengthNoFollowPtr
+        },
         { Name: "Type", Value: this.type.toString(), Length: 2 },
         { Name: "Class", Value: classAsStr(this.class), Length: 2 },
       ]
@@ -299,7 +299,11 @@ class Resource {
       Name: "Resource",
       Length: this.resourceLength,
       InsideNodes: [
-        this.name.node,
+        {
+          Name: "Name",
+          Value: this.name.name,
+          Length: this.name.nameLengthNoFollowPtr
+        },
         { Name: "Type", Value: this.type.toString(), Length: 2 },
         { Name: "Class", Value: classAsStr(this.class), Length: 2 },
         { Name: "TTL", Value: this.ttl.toString(), Length: 4 },
@@ -317,8 +321,115 @@ class Resource {
         }
         return {
           Name: "Resource A",
-          Value: msg.slice(offset, offset + length).join("."),
           Length: length,
+          InsideNodes: [{
+            Name: "Address",
+            Value: msg.slice(offset, offset + length).join("."),
+            Length: length,
+          }],
+        };
+      }
+      case 2: {
+        const name = new Name(msg, offset);
+        if (name.nameLengthNoFollowPtr != length) {
+          throw new Error("invalid NS resource, name is longer than the resource length");
+        }
+        return {
+          Name: "Resource NS",
+          Length: length,
+          InsideNodes: [{
+            Name: "NS",
+            Value: name.name,
+            Length: name.nameLengthNoFollowPtr
+          }],
+        };
+      }
+      case 5: {
+        const name = new Name(msg, offset);
+        if (name.nameLengthNoFollowPtr != length) {
+          throw new Error("invalid CNAME resource, name is longer than the resource length");
+        }
+        return {
+          Name: "Resource CNAME",
+          Length: length,
+          InsideNodes: [{
+            Name: "CNAME",
+            Value: name.name,
+            Length: name.nameLengthNoFollowPtr
+          }],
+        };
+      }
+      case 6: {
+        const ns = new Name(msg, offset);
+        const mbox = new Name(msg, offset);
+        if (mbox.nameLengthNoFollowPtr + ns.nameLengthNoFollowPtr + 20 > length) {
+          throw new Error("invalid SOA resource, resource length is too low");
+        }
+
+        const view = new DataView(msg.buffer, offset, 20);
+        return {
+          Name: "Resource SOA",
+          Length: length,
+          InsideNodes: [
+            {
+              Name: "NS",
+              Value: ns.name,
+              Length: ns.nameLengthNoFollowPtr
+            },
+            {
+              Name: "MBox",
+              Value: mbox.name,
+              Length: mbox.nameLengthNoFollowPtr
+            },
+            { Name: "Serial", Value: view.getUint32(0).toString(), Length: 4 },
+            { Name: "Refresh", Value: view.getUint32(4).toString(), Length: 4 },
+            { Name: "Retry", Value: view.getUint32(8).toString(), Length: 4 },
+            { Name: "Expire", Value: view.getUint32(12).toString(), Length: 4 },
+            { Name: "Minimum", Value: view.getUint32(16).toString(), Length: 4 },
+          ],
+        };
+      }
+      case 12: {
+        const name = new Name(msg, offset);
+        if (name.nameLengthNoFollowPtr != length) {
+          throw new Error("invalid PTR resource, name is longer than the resource length");
+        }
+        return {
+          Name: "Resource PTR",
+          Length: length,
+          InsideNodes: [{
+            Name: "PTR",
+            Value: name.name,
+            Length: name.nameLengthNoFollowPtr
+          }],
+        };
+      }
+      case 15: {
+        if (length < 2) {
+          throw new Error("invalid MX resource, missing preference and name");
+        }
+        const name = new Name(msg, offset + 2);
+        if (name.nameLengthNoFollowPtr > length - 2) {
+          throw new Error("invalid MX resource, resource is longer than the resource length");
+        }
+        if (name.nameLengthNoFollowPtr < length - 2) {
+          throw new Error("invalid MX resource, resource is shorter than the resource length");
+        }
+        return {
+          Name: "Resource MX",
+          Length: length,
+          InsideNodes: [
+            {
+              Name: "Preference",
+              Value: new DataView(msg.buffer, offset).getUint16(0).toString(),
+              Length: 2
+            },
+            {
+              Name: "MX",
+              Value: name.name,
+              Length: name.nameLengthNoFollowPtr
+            }
+          ],
         };
       }
       case 28: {
@@ -332,8 +443,12 @@ class Resource {
         }
         return {
           Name: "Resource AAAA",
-          Value: hexSegments.join(":"),
           Length: length,
+          InsideNodes: [{
+            Name: "Address",
+            Value: hexSegments.join(":"),
+            Length: length,
+          }],
         };
       }
       default:
@@ -463,8 +578,10 @@ function render() {
       1, 128, 8, 131, 0, 1, 0, 90, 0, 0, 0, 0,
       3, 67, 67, 67, 0, 1, 0, 0, 1,
       0xC0, 12, 0, 1, 0, 0, 1, 0, 1, 0, 0, 4, 1, 2, 3, 5,
-      0xC0, 12, 0, 28, 0, 0, 1, 0, 0, 0, 0, 15, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-      0xC0, 12, 1, 0, 2, 3, 0, 0, 0, 0, 0, 3, 1, 2, 3,
+      0xC0, 12, 0, 28, 0, 0, 1, 0, 0, 0, 0, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      0xC0, 12, 0, 5, 2, 3, 0, 0, 0, 0, 0, 2, 0xC0, 12,
+      0xC0, 12, 0, 15, 2, 3, 0, 0, 0, 0, 0, 4, 1, 1, 0xC0, 12,
+      0xC0, 12, 0, 6, 2, 3, 0, 0, 0, 0, 0, 24, 0xC0, 12, 0xC0, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
     ]
   ));
 
