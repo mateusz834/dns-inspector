@@ -340,6 +340,7 @@ class Message {
 
 
     let offset = 12;
+    let type = "question";
     try {
       this.Node.InsideNodes?.push(questionsNode);
       for (let i = 0; i < header.QDCount; i++) {
@@ -349,6 +350,7 @@ class Message {
         questionsNode.InsideNodes?.push(q.node);
       }
 
+      type = "answer resource";
       this.Node.InsideNodes?.push(answersNode);
       for (let i = 0; i < header.ANCount; i++) {
         const q = new Resource(msg, offset);
@@ -357,6 +359,7 @@ class Message {
         answersNode.InsideNodes?.push(q.node);
       }
 
+      type = "authority resource";
       this.Node.InsideNodes?.push(authoritiesNode);
       for (let i = 0; i < header.NSCount; i++) {
         const q = new Resource(msg, offset);
@@ -365,6 +368,7 @@ class Message {
         authoritiesNode.InsideNodes?.push(q.node);
       }
 
+      type = "additional resource";
       this.Node.InsideNodes?.push(additionalsNode);
       for (let i = 0; i < header.ARCount; i++) {
         const q = new Resource(msg, offset);
@@ -376,8 +380,8 @@ class Message {
       if (err instanceof Error) {
         const trailing = msg.slice(offset);
         this.Node.InsideNodes?.push({
-          Name: "Invalid message",
-          Value: err.message,
+          Name: "Invalid header",
+          Value: trailing.length == 0 ? `missing ${type}, count in header is bigger than the actual count of ${type}s found the message` : err.message,
           Length: trailing.length,
           Invalid: true,
         });
