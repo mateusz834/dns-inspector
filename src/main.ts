@@ -167,6 +167,10 @@ class Name {
           strName += ".";
         }
 
+        if (strName == "") {
+          strName = ".";
+        }
+
         this.name = strName;
         return;
       }
