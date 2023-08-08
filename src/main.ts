@@ -103,7 +103,7 @@ class Header {
 
 class Name {
   nameLengthNoFollowPtr: number;
-  name: string,
+  name: string;
 
   constructor(msg: Uint8Array, offset: number) {
     const startOffset = offset;
