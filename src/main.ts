@@ -654,6 +654,9 @@ function render() {
         }
         prevID = id;
         clickID = id;
+        const newURL = new URL(window.location.toString());
+        newURL.searchParams.set("hov", id);
+        history.replaceState(null, "", newURL);
 
         document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight");
         document.getElementById(nodeIDPrefix + id)?.querySelector(".details")?.classList.add("highlight-end");
@@ -713,6 +716,10 @@ function render() {
     const msg = new Message(bytes);
     nodes.replaceChildren(renderNode(msg.Node, nodeIDPrefix + "0", 0));
     binary.replaceChildren(renderBinaryViewer(msg.Buf, 0, msg.Node, binaryViewerIDPrefix + "0"));
+
+    const newURL = new URL(window.location.toString());
+    newURL.searchParams.set("msg", hex);
+    history.replaceState(null, "", newURL);
   });
 
   wrapper.appendChild(buttonError);
@@ -724,6 +731,28 @@ function render() {
   main.appendChild(nodes);
   main.appendChild(rhsWrapper);
   document.body.appendChild(main);
+
+  const params = new URLSearchParams(window.location.search);
+  const msg = params.get("msg");
+  const hov = params.get("hov");
+  if (msg) {
+    input.value = msg;
+    inspectButton.click();
+    if (hov) {
+      prevID = hov;
+      clickID = hov;
+      document.getElementById(nodeIDPrefix + hov)?.querySelector(".details")?.classList.add("highlight");
+      document.getElementById(nodeIDPrefix + hov)?.querySelector(".details")?.classList.add("highlight-end");
+      for (let i = hov.indexOf("."); i != -1; i = hov.indexOf(".", i + 1)) {
+        const pid = hov.slice(0, i);
+        document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.add("highlight");
+      }
+      document.getElementById(binaryViewerIDPrefix + hov)?.classList.add("highlight");
+
+      scrollIntoViewIfNeeded(document.getElementById(binaryViewerIDPrefix + hov)!);
+      scrollIntoViewIfNeeded(document.getElementById(nodeIDPrefix + hov)!);
+    }
+  }
 }
 
 function renderNode(node: Node, id: string, bitOffset: number, bitField?: boolean): HTMLElement {
