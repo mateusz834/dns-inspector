@@ -122,6 +122,9 @@ class Name {
   nameLengthNoFollowPtr: number;
   name: string;
 
+  nameUpToFirstPtr?: string;
+  firstPtr?: number;
+
   constructor(msg: Uint8Array, offset: number) {
     const startOffset = offset;
     let nameEndOffset = 0;
@@ -147,6 +150,7 @@ class Name {
         if (seenPtrs.has(seenPtrs)) {
           throw new Error("invalid DNS name encoding, pointer loop");
         }
+        seenPtrs.add(offset);
         continue;
       }
 
@@ -167,27 +171,44 @@ class Name {
         this.nameLengthNoFollowPtr = (nameEndOffset - startOffset) + 1;
 
         let strName = "";
+        let strNameUpToFirstPtr: string | undefined = undefined;
+
         const rawName = raw.slice(0, length);
         for (let i = 0; rawName[i] != 0; i += rawName[i] + 1) {
+          let labelStr = "";
           const label = rawName.slice(i + 1, i + 1 + rawName[i]);
           for (let j = 0; j < label.length; j++) {
             if (label[j] === '.'.charCodeAt(0)) {
-              strName += "\\.";
+              labelStr += "\\.";
             } else if (label[j] === '\\'.charCodeAt(0)) {
-              strName += "\\\\";
+              labelStr += "\\\\";
             } else if (label[j] < '!'.charCodeAt(0) || label[j] > '~'.charCodeAt(0)) {
-              strName += "\\" + ("000" + label[j]).slice(-3);
+              labelStr += "\\" + ("000" + label[j]).slice(-3);
             } else {
-              strName += String.fromCharCode(label[j]);
+              labelStr += String.fromCharCode(label[j]);
             }
           }
-          strName += ".";
+
+          strName += labelStr + ".";
+          if (i < this.nameLengthNoFollowPtr - 2 && seenPtrs.size > 0) {
+            if (!strNameUpToFirstPtr) {
+              strNameUpToFirstPtr = labelStr;
+            } else {
+              strNameUpToFirstPtr += "." + labelStr;
+            }
+          }
         }
 
         if (strName == "") {
           strName = ".";
         }
 
+        if (seenPtrs.size > 0) {
+          if (strNameUpToFirstPtr !== "") {
+            this.nameUpToFirstPtr = strNameUpToFirstPtr;
+          }
+          this.firstPtr = ((msg[nameEndOffset - 1] ^ 0xC0) << 8) | msg[nameEndOffset];
+        }
         this.name = strName;
         return;
       }
@@ -209,6 +230,36 @@ class Name {
       raw.set(label, length);
       length += label.length;
     }
+  }
+
+  asNode(name: string): Node {
+    let insideNodes: Node[] | undefined = undefined;
+    if (this.firstPtr && this.nameUpToFirstPtr) {
+      insideNodes = [
+        {
+          Name: "Partial name",
+          Value: this.nameUpToFirstPtr,
+          Length: this.nameLengthNoFollowPtr - 2,
+        },
+        {
+          Name: "Compression pointer",
+          Value: this.firstPtr.toString(),
+          Length: 2,
+        }
+      ];
+    } else if (this.firstPtr) {
+      insideNodes = [{
+        Name: "Compression pointer",
+        Value: this.firstPtr.toString(),
+        Length: 2,
+      }];
+    }
+    return {
+      Name: name,
+      Value: this.name,
+      Length: this.nameLengthNoFollowPtr,
+      InsideNodes: insideNodes,
+    };
   }
 }
 
@@ -243,12 +294,7 @@ class Queston {
       Name: "Question",
       Length: this.name.nameLengthNoFollowPtr + 4,
       InsideNodes: [
-        {
-          Name: "Name",
-          Value: this.name.name,
-          Length: this.name.nameLengthNoFollowPtr
-        },
-        // TODO:
+        this.name.asNode("Name"),
         { Name: "Type", Value: typeAsStr(this.type), Length: 2 },
         { Name: "Class", Value: classAsStr(this.class), Length: 2 },
       ]
@@ -321,11 +367,7 @@ class Resource {
       Name: "Resource",
       Length: this.resourceLength,
       InsideNodes: [
-        {
-          Name: "Name",
-          Value: this.name.name,
-          Length: this.name.nameLengthNoFollowPtr
-        },
+        this.name.asNode("Name"),
         { Name: "Type", Value: typeAsStr(this.type), Length: 2 },
         { Name: "Class", Value: classAsStr(this.class), Length: 2 },
         { Name: "TTL", Value: this.ttl.toString(), Length: 4 },
@@ -359,11 +401,7 @@ class Resource {
         return {
           Name: "Resource NS",
           Length: length,
-          InsideNodes: [{
-            Name: "NS",
-            Value: name.name,
-            Length: name.nameLengthNoFollowPtr
-          }],
+          InsideNodes: [name.asNode("NS")],
         };
       }
       case 5: {
@@ -374,11 +412,7 @@ class Resource {
         return {
           Name: "Resource CNAME",
           Length: length,
-          InsideNodes: [{
-            Name: "CNAME",
-            Value: name.name,
-            Length: name.nameLengthNoFollowPtr
-          }],
+          InsideNodes: [name.asNode("CNAME")],
         };
       }
       case 6: {
@@ -393,16 +427,8 @@ class Resource {
           Name: "Resource SOA",
           Length: length,
           InsideNodes: [
-            {
-              Name: "NS",
-              Value: ns.name,
-              Length: ns.nameLengthNoFollowPtr
-            },
-            {
-              Name: "MBox",
-              Value: mbox.name,
-              Length: mbox.nameLengthNoFollowPtr
-            },
+            ns.asNode("NS"),
+            mbox.asNode("MBox"),
             { Name: "Serial", Value: view.getUint32(0).toString(), Length: 4 },
             { Name: "Refresh", Value: view.getUint32(4).toString(), Length: 4 },
             { Name: "Retry", Value: view.getUint32(8).toString(), Length: 4 },
@@ -419,11 +445,7 @@ class Resource {
         return {
           Name: "Resource PTR",
           Length: length,
-          InsideNodes: [{
-            Name: "PTR",
-            Value: name.name,
-            Length: name.nameLengthNoFollowPtr
-          }],
+          InsideNodes: [name.asNode("PTR")],
         };
       }
       case 15: {
@@ -446,11 +468,7 @@ class Resource {
               Value: new DataView(msg.buffer, offset).getUint16(0).toString(),
               Length: 2
             },
-            {
-              Name: "MX",
-              Value: name.name,
-              Length: name.nameLengthNoFollowPtr
-            }
+            name.asNode("MX")
           ],
         };
       }
