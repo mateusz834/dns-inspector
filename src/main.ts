@@ -10,8 +10,25 @@ const classToName: {
   255: "ANY",
 };
 
+const typeToName: {
+  [k: number]: string | undefined,
+} = {
+  1: "A",
+  2: "NS",
+  5: "CNAME",
+  6: "SOA",
+  12: "PTR",
+  15: "MX",
+  28: "AAAA",
+};
+
 function classAsStr(num: number): string {
   const name = classToName[num];
+  return `${num} ${name ? `(${name})` : ""}`;
+}
+
+function typeAsStr(num: number): string {
+  const name = typeToName[num];
   return `${num} ${name ? `(${name})` : ""}`;
 }
 
@@ -231,7 +248,8 @@ class Queston {
           Value: this.name.name,
           Length: this.name.nameLengthNoFollowPtr
         },
-        { Name: "Type", Value: this.type.toString(), Length: 2 },
+        // TODO:
+        { Name: "Type", Value: typeAsStr(this.type), Length: 2 },
         { Name: "Class", Value: classAsStr(this.class), Length: 2 },
       ]
     };
@@ -281,12 +299,10 @@ class Resource {
       Length: this.length,
     };
 
-    let rdType = this.type.toString();
     try {
-      const rdParsed = this.parseResourceData(msg, this.type, offset + 10, this.length);
-      if (rdParsed) {
-        rd.InsideNodes = [rdParsed[0]];
-        rdType = `${rdType} (${rdParsed[1]})`;
+      const n = this.parseResourceData(msg, this.type, offset + 10, this.length);
+      if (n) {
+        rd.InsideNodes = [n];
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -310,7 +326,7 @@ class Resource {
           Value: this.name.name,
           Length: this.name.nameLengthNoFollowPtr
         },
-        { Name: "Type", Value: rdType, Length: 2 },
+        { Name: "Type", Value: typeAsStr(this.type), Length: 2 },
         { Name: "Class", Value: classAsStr(this.class), Length: 2 },
         { Name: "TTL", Value: this.ttl.toString(), Length: 4 },
         { Name: "Length", Value: this.length.toString(), Length: 2 },
@@ -319,13 +335,13 @@ class Resource {
     };
   }
 
-  private parseResourceData(msg: Uint8Array, type: number, offset: number, length: number): [Node, string] | null {
+  private parseResourceData(msg: Uint8Array, type: number, offset: number, length: number): Node | null {
     switch (type) {
       case 1: {
         if (length != 4) {
           throw new Error("invalid A resource, expected 4 Byte resource length");
         }
-        return [{
+        return {
           Name: "Resource A",
           Length: length,
           InsideNodes: [{
@@ -333,14 +349,14 @@ class Resource {
             Value: msg.slice(offset, offset + length).join("."),
             Length: length,
           }],
-        }, "A"];
+        };
       }
       case 2: {
         const name = new Name(msg, offset);
         if (name.nameLengthNoFollowPtr != length) {
           throw new Error("invalid NS resource, name is longer than the resource length");
         }
-        return [{
+        return {
           Name: "Resource NS",
           Length: length,
           InsideNodes: [{
@@ -348,14 +364,14 @@ class Resource {
             Value: name.name,
             Length: name.nameLengthNoFollowPtr
           }],
-        }, "NS"];
+        };
       }
       case 5: {
         const name = new Name(msg, offset);
         if (name.nameLengthNoFollowPtr != length) {
           throw new Error("invalid CNAME resource, name is longer than the resource length");
         }
-        return [{
+        return {
           Name: "Resource CNAME",
           Length: length,
           InsideNodes: [{
@@ -363,7 +379,7 @@ class Resource {
             Value: name.name,
             Length: name.nameLengthNoFollowPtr
           }],
-        }, "CNAME"];
+        };
       }
       case 6: {
         const ns = new Name(msg, offset);
@@ -373,7 +389,7 @@ class Resource {
         }
 
         const view = new DataView(msg.buffer, offset, 20);
-        return [{
+        return {
           Name: "Resource SOA",
           Length: length,
           InsideNodes: [
@@ -393,14 +409,14 @@ class Resource {
             { Name: "Expire", Value: view.getUint32(12).toString(), Length: 4 },
             { Name: "Minimum", Value: view.getUint32(16).toString(), Length: 4 },
           ],
-        }, "SOA"];
+        };
       }
       case 12: {
         const name = new Name(msg, offset);
         if (name.nameLengthNoFollowPtr != length) {
           throw new Error("invalid PTR resource, name is longer than the resource length");
         }
-        return [{
+        return {
           Name: "Resource PTR",
           Length: length,
           InsideNodes: [{
@@ -408,7 +424,7 @@ class Resource {
             Value: name.name,
             Length: name.nameLengthNoFollowPtr
           }],
-        }, "PTR"];
+        };
       }
       case 15: {
         if (length < 2) {
@@ -421,7 +437,7 @@ class Resource {
         if (name.nameLengthNoFollowPtr < length - 2) {
           throw new Error("invalid MX resource, resource is shorter than the resource length");
         }
-        return [{
+        return {
           Name: "Resource MX",
           Length: length,
           InsideNodes: [
@@ -436,7 +452,7 @@ class Resource {
               Length: name.nameLengthNoFollowPtr
             }
           ],
-        }, "MX"];
+        };
       }
       case 28: {
         if (length != 16) {
@@ -447,7 +463,7 @@ class Resource {
         for (let i = 0; i < 16; i += 2) {
           hexSegments.push(((ipv6[i] << 8) + ipv6[i + 1]).toString(16));
         }
-        return [{
+        return {
           Name: "Resource AAAA",
           Length: length,
           InsideNodes: [{
@@ -455,7 +471,7 @@ class Resource {
             Value: hexSegments.join(":"),
             Length: length,
           }],
-        }, "AAAA"];
+        };
       }
       default:
         return null;
