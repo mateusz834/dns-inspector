@@ -383,7 +383,7 @@ class Resource {
       }
       case 6: {
         const ns = new Name(msg, offset);
-        const mbox = new Name(msg, offset);
+        const mbox = new Name(msg, offset + ns.nameLengthNoFollowPtr);
         if (mbox.nameLengthNoFollowPtr + ns.nameLengthNoFollowPtr + 20 > length) {
           throw new Error("invalid SOA resource, resource length is too low");
         }
