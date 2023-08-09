@@ -757,16 +757,23 @@ function render() {
     if (hov) {
       prevID = hov;
       clickID = hov;
-      document.getElementById(nodeIDPrefix + hov)?.querySelector(".details")?.classList.add("highlight");
-      document.getElementById(nodeIDPrefix + hov)?.querySelector(".details")?.classList.add("highlight-end");
+      const bv = document.getElementById(binaryViewerIDPrefix + hov)!;
+      const n = document.getElementById(nodeIDPrefix + hov);
+      if (!n || !bv) {
+        return;
+      }
+
+      scrollIntoViewIfNeeded(bv);
+      bv.classList.add("highlight");
+
+      scrollIntoViewIfNeeded(n);
+      n.querySelector(".details")?.classList.add("highlight");
+      n.querySelector(".details")?.classList.add("highlight-end");
+
       for (let i = hov.indexOf("."); i != -1; i = hov.indexOf(".", i + 1)) {
         const pid = hov.slice(0, i);
         document.getElementById(nodeIDPrefix + pid)?.querySelector(".details")?.classList.add("highlight");
       }
-      document.getElementById(binaryViewerIDPrefix + hov)?.classList.add("highlight");
-
-      scrollIntoViewIfNeeded(document.getElementById(binaryViewerIDPrefix + hov)!);
-      scrollIntoViewIfNeeded(document.getElementById(nodeIDPrefix + hov)!);
     }
   }
 }
