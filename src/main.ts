@@ -122,7 +122,11 @@ class Name {
   nameLengthNoFollowPtr: number;
   name: string;
 
-  nameUpToFirstPtr?: string;
+  labelsUpToFirstPtr: {
+    root: boolean;
+    str: string;
+    length: number;
+  }[];
   firstPtr?: number;
 
   constructor(msg: Uint8Array, offset: number) {
@@ -171,7 +175,7 @@ class Name {
         this.nameLengthNoFollowPtr = (nameEndOffset - startOffset) + 1;
 
         let strName = "";
-        let strNameUpToFirstPtr: string | undefined = undefined;
+        this.labelsUpToFirstPtr = [];
 
         const rawName = raw.slice(0, length);
         for (let i = 0; rawName[i] != 0; i += rawName[i] + 1) {
@@ -190,13 +194,13 @@ class Name {
           }
 
           strName += labelStr + ".";
-          if (i < this.nameLengthNoFollowPtr - 2 && seenPtrs.size > 0) {
-            if (!strNameUpToFirstPtr) {
-              strNameUpToFirstPtr = labelStr;
-            } else {
-              strNameUpToFirstPtr += "." + labelStr;
-            }
+          if (i < this.nameLengthNoFollowPtr - 2) {
+            this.labelsUpToFirstPtr.push({ str: labelStr, length: label.length + 1, root: false });
           }
+        }
+
+        if (seenPtrs.size == 0) {
+          this.labelsUpToFirstPtr.push({ str: ".", length: 1, root: true });
         }
 
         if (strName == "") {
@@ -204,9 +208,6 @@ class Name {
         }
 
         if (seenPtrs.size > 0) {
-          if (strNameUpToFirstPtr !== "") {
-            this.nameUpToFirstPtr = strNameUpToFirstPtr;
-          }
           this.firstPtr = ((msg[nameEndOffset - 1] ^ 0xC0) << 8) | msg[nameEndOffset];
         }
         this.name = strName;
@@ -233,27 +234,32 @@ class Name {
   }
 
   asNode(name: string): Node {
-    let insideNodes: Node[] | undefined = undefined;
-    if (this.firstPtr && this.nameUpToFirstPtr) {
-      insideNodes = [
-        {
-          Name: "Partial name",
-          Value: this.nameUpToFirstPtr,
-          Length: this.nameLengthNoFollowPtr - 2,
-        },
-        {
-          Name: "Compression pointer",
-          Value: this.firstPtr.toString(),
-          Length: 2,
-        }
-      ];
-    } else if (this.firstPtr) {
-      insideNodes = [{
+    const insideNodes: Node[] = [];
+
+    for (const label of this.labelsUpToFirstPtr) {
+      if (label.root) {
+        insideNodes.push({
+          Name: "Root label",
+          Value: label.str,
+          Length: label.length,
+        });
+        continue;
+      }
+      insideNodes.push({
+        Name: "Label",
+        Value: label.str,
+        Length: label.length,
+      });
+    }
+
+    if (this.firstPtr) {
+      insideNodes.push({
         Name: "Compression pointer",
         Value: this.firstPtr.toString(),
         Length: 2,
-      }];
+      });
     }
+
     return {
       Name: name,
       Value: this.name,
