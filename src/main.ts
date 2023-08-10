@@ -20,6 +20,7 @@ const typeToName: {
   12: "PTR",
   15: "MX",
   28: "AAAA",
+  41: "OPT",
 };
 
 function classAsStr(num: number): string {
@@ -318,7 +319,7 @@ class Resource {
   resourceLength: number;
   node: Node;
 
-  constructor(msg: Uint8Array, offset: number) {
+  constructor(msg: Uint8Array, offset: number, section: "Answers" | "Authorities" | "Additionals", hdr: Header) {
     try {
       this.name = new Name(msg, offset);
     } catch (err) {
@@ -369,18 +370,152 @@ class Resource {
       }
     }
 
-    this.node = {
-      Name: "Resource",
-      Length: this.resourceLength,
-      InsideNodes: [
-        this.name.asNode("Name"),
-        { Name: "Type", Value: typeAsStr(this.type), Length: 2 },
-        { Name: "Class", Value: classAsStr(this.class), Length: 2 },
-        { Name: "TTL", Value: this.ttl.toString(), Length: 4 },
-        { Name: "Length", Value: this.length.toString(), Length: 2 },
-        rd,
-      ]
-    };
+    if (this.type == 41) {
+      const nameNode = this.name.asNode("Name");
+      if (this.name.name !== ".") {
+        nameNode.Invalid = true;
+        nameNode.Value = `invalid name: "${nameNode.Value}", expected root name, because this is an EDNS(0) header`;
+      }
+      this.node = {
+        Name: "Resource",
+        Length: this.resourceLength,
+        Invalid: section !== "Additionals",
+        Value: section !== "Additionals" ? `unexpected OPT EDNS(0) in ${section} section` : undefined,
+        InsideNodes: [
+          nameNode,
+          { Name: "Type", Value: typeAsStr(this.type), Length: 2 },
+          {
+            Name: "Class",
+            Value: typeAsStr(this.class),
+            Length: 2,
+            InsideNodes: [{
+              Name: "Payload",
+              Value: this.class.toString(),
+              Length: 2
+            }],
+          },
+          {
+            Name: "TTL",
+            Value: this.ttl.toString(),
+            Length: 4,
+            InsideNodes: [
+              {
+                Name: "Partial extended RCode",
+                Value: `${(this.ttl >> 24).toString()}, Extended RCode: ${((this.ttl >> 24) << 4) | hdr.Flags.RCode}`,
+                Length: 1,
+              },
+              {
+                Name: "Version",
+                Value: (this.ttl >> 16).toString(),
+                Length: 1,
+              },
+              {
+                Name: "Extended flags",
+                Length: 2,
+                bitField: true,
+                InsideNodes: [
+                  {
+                    Name: "Bit DO",
+                    Value: ((this.ttl & (1 << 15)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 14",
+                    Value: ((this.ttl & (1 << 14)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 13",
+                    Value: ((this.ttl & (1 << 13)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 12",
+                    Value: ((this.ttl & (1 << 12)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 11",
+                    Value: ((this.ttl & (1 << 11)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 10",
+                    Value: ((this.ttl & (1 << 10)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 9",
+                    Value: ((this.ttl & (1 << 9)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 8",
+                    Value: ((this.ttl & (1 << 8)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 7",
+                    Value: ((this.ttl & (1 << 7)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 6",
+                    Value: ((this.ttl & (1 << 6)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 5",
+                    Value: ((this.ttl & (1 << 5)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 4",
+                    Value: ((this.ttl & (1 << 4)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 3",
+                    Value: ((this.ttl & (1 << 3)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 2",
+                    Value: ((this.ttl & (1 << 2)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 1",
+                    Value: ((this.ttl & (1 << 1)) !== 0).toString(),
+                    Length: 1,
+                  },
+                  {
+                    Name: "Reserved bit 0",
+                    Value: ((this.ttl & 1) !== 0).toString(),
+                    Length: 1,
+                  },
+                ],
+              },
+            ],
+          },
+          { Name: "Length", Value: this.length.toString(), Length: 2 },
+          rd,
+        ]
+      };
+    } else {
+      this.node = {
+        Name: "Resource",
+        Length: this.resourceLength,
+        InsideNodes: [
+          this.name.asNode("Name"),
+          { Name: "Type", Value: typeAsStr(this.type), Length: 2 },
+          { Name: "Class", Value: classAsStr(this.class), Length: 2 },
+          { Name: "TTL", Value: this.ttl.toString(), Length: 4 },
+          { Name: "Length", Value: this.length.toString(), Length: 2 },
+          rd,
+        ]
+      };
+    }
   }
 
   private parseResourceData(msg: Uint8Array, type: number, offset: number, length: number): Node | null {
@@ -569,7 +704,7 @@ class Message {
       type = "answer resource";
       this.Node.InsideNodes?.push(answersNode);
       for (let i = 0; i < header.ANCount; i++) {
-        const q = new Resource(msg, offset);
+        const q = new Resource(msg, offset, "Answers", header);
         offset += q.resourceLength;
         answersNode.Length += q.resourceLength;
         answersNode.InsideNodes?.push(q.node);
@@ -578,7 +713,7 @@ class Message {
       type = "authority resource";
       this.Node.InsideNodes?.push(authoritiesNode);
       for (let i = 0; i < header.NSCount; i++) {
-        const q = new Resource(msg, offset);
+        const q = new Resource(msg, offset, "Authorities", header);
         offset += q.resourceLength;
         authoritiesNode.Length += q.resourceLength;
         authoritiesNode.InsideNodes?.push(q.node);
@@ -587,7 +722,7 @@ class Message {
       type = "additional resource";
       this.Node.InsideNodes?.push(additionalsNode);
       for (let i = 0; i < header.ARCount; i++) {
-        const q = new Resource(msg, offset);
+        const q = new Resource(msg, offset, "Additionals", header);
         offset += q.resourceLength;
         additionalsNode.Length += q.resourceLength;
         additionalsNode.InsideNodes?.push(q.node);
