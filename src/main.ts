@@ -344,7 +344,7 @@ class Resource {
 
     this.resourceLength += this.length + 10;
     if (offset + 10 + this.length > msg.length) {
-      throw new Error("invalid resource header");
+      throw new Error(`invalid resource header, resource declared: ${this.length} Bytes of resource data length, but there is available only: ${msg.length - offset - 10} Bytes`);
     }
 
     const rd: Node = {
@@ -731,7 +731,7 @@ class Message {
       if (err instanceof Error) {
         const trailing = msg.slice(offset);
         this.Node.InsideNodes?.push({
-          Name: trailing.length == 0 ? `invalid header` : `invalid message`,
+          Name: trailing.length == 0 ? `Invalid header` : `Invalid message`,
           Value: trailing.length == 0 ? `missing ${type}, count in header is bigger than the actual count of ${type}s found the message` : err.message,
           Length: trailing.length,
           Invalid: true,
