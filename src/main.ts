@@ -891,6 +891,8 @@ function render() {
     const msg = new Message(bytes);
     nodes.replaceChildren(renderNode(msg.Node, nodeIDPrefix + "0", 0));
     binary.replaceChildren(renderBinaryViewer(msg.Buf, 0, msg.Node, binaryViewerIDPrefix + "0"));
+    prevID = null;
+    clickID = null;
 
     const newURL = new URL(window.location.toString());
     newURL.searchParams.set("msg", hex);
