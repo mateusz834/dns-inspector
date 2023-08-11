@@ -632,6 +632,47 @@ class Resource {
           }],
         };
       }
+      case 41: {
+        const endOffset = offset + length;
+        const insideNodes: Node[] = [];
+        const view = new DataView(msg.buffer);
+        while (offset !== endOffset) {
+          if (offset + 4 > endOffset) {
+            throw new Error("invalid opt resource, missing option code and/or length");
+          }
+          const code = view.getInt16(offset);
+          const length = view.getInt16(offset + 2);
+          offset += 4 + length;
+          if (offset > endOffset) {
+            throw new Error(`invalid opt resource, option declared length of: ${length} Bytes, but available only: ${offset - endOffset - 1} Bytes`);
+          }
+          insideNodes.push({
+            Name: "Option",
+            Length: length + 4,
+            InsideNodes: [
+              {
+                Name: "Code",
+                Value: code.toString(),
+                Length: 2,
+              },
+              {
+                Name: "Length",
+                Value: length.toString(),
+                Length: 2,
+              },
+              {
+                Name: "Option data",
+                Length: length,
+              }
+            ],
+          });
+        }
+        return {
+          Name: "Resource OPT",
+          Length: length,
+          InsideNodes: insideNodes,
+        };
+      }
       default:
         return null;
     }
